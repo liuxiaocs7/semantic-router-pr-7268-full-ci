@@ -11,7 +11,7 @@ on:
         required: true
         default: all
         type: choice
-        options: [all, board, stale, translation, leaderboard, unassign, flaky]
+        options: [all, board, stale, translation, leaderboard, unassign, flaky, benchmark-memory-7280]
       milestone:
         description: Optional maintainer-board milestone.
         required: false
@@ -108,3 +108,11 @@ jobs:
       actions: read
     uses: ./.github/workflows/flaky-tests.yml
     secrets: inherit
+
+  benchmark-memory-7280:
+    name: Production benchmark memory
+    if: >-
+      github.repository == 'liuxiaocs7/semantic-router-pr-7268-full-ci'
+      && github.event_name == 'workflow_dispatch'
+      && inputs.task == 'benchmark-memory-7280'
+    uses: ./.github/workflows/benchmark-memory-7280.yml
