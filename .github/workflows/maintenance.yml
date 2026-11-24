@@ -22,7 +22,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: maintenance-${{ github.event.schedule || inputs.task || 'manual' }}
+  group: >-
+    ${{ inputs.task == 'benchmark-memory-7280' && format('benchmark-memory-7280-{0}', github.run_id)
+    || format('maintenance-{0}', github.event.schedule || inputs.task || 'manual') }}
   cancel-in-progress: false
 
 jobs:
