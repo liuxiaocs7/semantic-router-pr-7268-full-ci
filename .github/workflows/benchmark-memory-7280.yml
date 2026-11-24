@@ -72,6 +72,18 @@ jobs:
           seconds: "200"
       - uses: ./.github/actions/benchmark-memory-checkpoint
         with:
+          seconds: "210"
+      - uses: ./.github/actions/benchmark-memory-checkpoint
+        with:
+          seconds: "220"
+      - uses: ./.github/actions/benchmark-memory-checkpoint
+        with:
+          seconds: "230"
+      - uses: ./.github/actions/benchmark-memory-checkpoint
+        with:
+          seconds: "240"
+      - uses: ./.github/actions/benchmark-memory-checkpoint
+        with:
           seconds: "250"
       - uses: ./.github/actions/benchmark-memory-checkpoint
         with:

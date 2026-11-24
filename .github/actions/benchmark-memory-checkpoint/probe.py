@@ -25,7 +25,7 @@ def split_baseline():
     replacement = """  run_model_groups() {
     local suite
     for suite in '^BenchmarkCache' '^BenchmarkClassify(Batch|Domain|RuntimeOverhead)' '^BenchmarkClassifyInputLength'; do
-      echo "Benchmark group: $suite"
+      echo "[7280] benchmark group: $suite"
       go test -run '^$' -bench "$suite" \\
         -benchmem -benchtime="${PERF_MODEL_BENCHTIME:-3s}" -timeout=30m ./benchmarks/... || return
     done
@@ -73,6 +73,7 @@ def resource_values():
     return (
         int(memory["MemTotal:"].split()[0]),
         int(memory["MemAvailable:"].split()[0]),
+        int(memory["SwapFree:"].split()[0]),
         int(vm["oom_kill"]),
         int(pressure["some"].split("total=")[1]),
         int(pressure["full"].split("total=")[1]),
@@ -93,6 +94,7 @@ def run():
                 "elapsed_s",
                 "mem_total_kib",
                 "mem_available_kib",
+                "swap_free_kib",
                 "oom_kills",
                 "psi_some_us",
                 "psi_full_us",
@@ -150,7 +152,24 @@ def checkpoint(seconds):
         source = REPORTS / name
         if source.exists():
             shutil.copyfile(source, output / name)
-    for name in ("command.log", "memory.csv"):
+    kernel = subprocess.run(
+        ["sudo", "-n", "dmesg", "--color=never"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    evidence = [
+        line
+        for line in kernel.stdout.splitlines()
+        if any(
+            signature in line.lower()
+            for signature in ("oom-kill", "out of memory", "oom_reaper")
+        )
+    ]
+    (output / "kernel-oom.log").write_text(
+        "\n".join(evidence) + "\n" if evidence else ""
+    )
+    for name in ("command.log", "memory.csv", "kernel-oom.log"):
         source = output / name
         if source.exists():
             print(f"--- {name} ---")
